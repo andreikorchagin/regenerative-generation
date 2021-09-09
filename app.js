@@ -15,7 +15,7 @@ function sketch(p) {
         p.strokeWeight(0);
         p.noLoop();
         setTimeout(() => {
-            p.saveCanvas(canvas, dir.concat(canvas_name), 'png').then(filename => {
+            p.saveCanvas(canvas, dir.concat(canvas_name), 'jpg').then(filename => {
                 console.log(`saved the canvas as ${filename}`);
             });
         }, 100);
