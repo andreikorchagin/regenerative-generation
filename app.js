@@ -1,8 +1,8 @@
 const p5 = require('node-p5');
-const side = 400;
+const side = 1080;
 const num_slices = 3;
 const slice = side / num_slices;
-const circle_size = 100;
+const circle_size = side / (num_slices + 1);
 const random_limit = 100000;
 const dir = 'images/';
 
