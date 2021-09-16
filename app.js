@@ -15,6 +15,8 @@ const dir = "images/";
 const canvas_name = getRandomInt(random_limit).toString();
 const storage = new Storage({ keyFilename: "key.json" });
 const gcs_prefix = "https://storage.googleapis.com/";
+const hashtags =
+  "%23nft %23nftart %23nftartist %23nftcommunity %23nftcollector %23nftartwork %23nftcollection %23nftgram %23generativeart %23generativedesign %23generativegraphics %23modernart %23modernartwork %23digitalart %23digitalartist %23opensea";
 let filePath;
 
 // helper function for random integer generation
@@ -37,9 +39,10 @@ function sketch(p) {
         filePath = filename;
         config = parseConfig();
         bucketName = config.bucket_name;
+        caption = createCaption(canvas_name);
         uploadFile(bucketName, filePath, destFileName).catch(console.error);
         let gcs_image_path = gcs_prefix + bucketName + "/" + destFileName;
-        createIGMedia(config, gcs_image_path);
+        createIGMedia(config, gcs_image_path, caption);
       });
     }, 100);
   };
@@ -77,15 +80,17 @@ async function uploadFile(bucketName, filePath, destFileName) {
 }
 
 // create media container
-function createIGMedia(config, image_url) {
+function createIGMedia(config, image_url, caption) {
   let container_creation_url =
     "https://graph.facebook.com/" + config.ig_user_id + "/media?";
+  console.log(caption);
   request.post(
     {
       url: container_creation_url,
       form: {
         image_url: image_url,
         access_token: config.access_token,
+        caption: caption,
       },
     },
     function (error, response, body) {
@@ -99,7 +104,6 @@ function createIGMedia(config, image_url) {
 }
 
 // publish media container
-
 function publishMediaContainer(media_container_id, config) {
   let container_publish_url =
     "https://graph.facebook.com/" + config.ig_user_id + "/media_publish?";
@@ -113,8 +117,47 @@ function publishMediaContainer(media_container_id, config) {
     },
     function (error, response, body) {
       if (!error) {
-        console.log("Success!");
+        console.log("Posting success!");
       }
+      let body_obj = JSON.parse(body);
+      const ig_media_id = body_obj.id;
+      comment = hashtags;
+      commentOnMedia(config, ig_media_id, comment);
     }
   );
+}
+
+function createCaption(canvas_name) {
+  /* let caption_url_encoded = "";
+  let caption_url_encoded =
+    "Regenerative%20Generation%20%5BSeries%20" +
+    canvas_name +
+    "%5D%0A%0AA%20totally%20machine-driven%20art%20project%20combining%20beauty%20and%20code.%20Daily%20pieces%20of%20unique%20generative%20art%20are%20posted%2C%20with%20the%20most%20popular%20being%20minted%20as%20NFTs.%20%0A%0ARead%20more%20in%20the%20link%20in%20bio.%0A.%0A.%0A.%0A.%0A.%0A%23nft%20%23nftart%20%23nftartist%20%23nftcommunity%20%23nftcollector%20%23nftartwork%20%23nftcollection%20%23nftgram%20%23generativeart%20%23generativedesign%20%23generativegraphics%20%23modernart%20%23modernartwork%20%23digitalart%20%23digitalartist%20%23opensea";*/
+  let caption_url_encoded =
+    "Regenerative Generation [Series " +
+    canvas_name +
+    "]. A totally machine-driven art project combining beauty and code. Daily pieces of unique generative art are posted, with the most popular being minted as NFTs. Read more in the link in bio.";
+  return caption_url_encoded;
+}
+
+function commentOnMedia(config, ig_media_id, comment) {
+  let comment_media_url =
+    "https://graph.facebook.com/" + ig_media_id + "/comments?";
+  setTimeout(() => {
+    request.post(
+      {
+        url: comment_media_url,
+        form: {
+          message: comment,
+          access_token: config.access_token,
+        },
+      },
+      function (error, response, body) {
+        console.log(body);
+        if (!error) {
+          console.log("Comment success!");
+        }
+      }
+    );
+  }, 1000);
 }
