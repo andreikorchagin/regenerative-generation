@@ -6,3 +6,5 @@ config.json
 key.json
 .eslintrc.json
 node_modules/*
+sketch.js
+gen.html
