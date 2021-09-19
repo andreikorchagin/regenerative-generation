@@ -51,6 +51,7 @@ function sketch(p) {
     setTimeout(() => {
       p.saveCanvas(canvas, dir.concat(canvasName), 'jpg').then((filename) => {
         console.log(`saved the canvas as ${filename}`);
+        logger.info(`saved the canvas as ${filename}`);
         const destFileName = canvasName + '.jpg';
         filePath = filename;
         config = parseConfig();
@@ -88,13 +89,13 @@ async function uploadFile(bucketName, filePath, destFileName) {
     destination: destFileName,
   });
   console.log(`${filePath} uploaded to ${bucketName}`);
+  logger.info(`${filePath} uploaded to ${bucketName}`);
 }
 
 // create media container
 function createIGMedia(config, imageURL, caption) {
   const containerCreationURL =
     'https://graph.facebook.com/' + config.ig_user_id + '/media?';
-  console.log(caption);
   request.post(
       {
         url: containerCreationURL,
@@ -107,6 +108,10 @@ function createIGMedia(config, imageURL, caption) {
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
         console.log(bodyObj);
+        logger.info(bodyObj);
+        if (bodyObj.error == 'undefined') {
+          logger.error(bodyObj.error);
+        }
         const mediaContainerID = bodyObj.id;
         if (mediaContainerID != null) {
           publishMediaContainer(mediaContainerID, config);
@@ -130,8 +135,9 @@ function publishMediaContainer(mediaContainerID, config) {
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
         console.log(bodyObj);
-        if (bodyObj.error !== 'undefined') {
-          console.log('Posting success!');
+        logger.info(bodyObj);
+        if (bodyObj.error == 'undefined') {
+          logger.error(bodyObj.error);
         }
         const igMediaID = bodyObj.id;
         commentOnMedia(config, igMediaID);
@@ -161,8 +167,9 @@ function commentOnMedia(config, igMediaID) {
         function(error, response, body) {
           const bodyObj = JSON.parse(body);
           console.log(bodyObj);
-          if (bodyObj.error !== 'undefined') {
-            console.log('Comment success!');
+          logger.info(bodyObj);
+          if (bodyObj.error == 'undefined') {
+            logger.error(bodyObj.error);
           }
         },
     );
