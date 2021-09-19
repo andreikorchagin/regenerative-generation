@@ -1,0 +1,25 @@
+{
+  "name": "regenerative-generation",
+  "version": "1.0.0",
+  "description": "A generative art and NFT project, see regengen.art for details.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreikorchagin/regenerative-generation.git"
+  },
+  "author": "Andrei Korchagin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andreikorchagin/regenerative-generation/issues"
+  },
+  "homepage": "https://github.com/andreikorchagin/regenerative-generation#readme",
+  "dependencies": {
+    "@google-cloud/logging-winston": "^4.1.1",
+    "@google-cloud/storage": "^5.14.2",
+    "node-p5": "^1.0.4",
+    "winston": "^3.3.3"
+  }
+}
