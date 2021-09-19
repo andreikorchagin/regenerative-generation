@@ -1,5 +1,10 @@
 {
     "bucket_name": "",
     "ig_user_id": "",
-    "access_token": ""
+    "access_token": "",
+    "hashtags": "",
+    "caption": {
+        "start": "",
+        "end": ""
+    }
 }

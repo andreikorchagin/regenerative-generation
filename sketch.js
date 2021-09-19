@@ -1,10 +1,12 @@
 /** @format */
+/* eslint-disable require-jsdoc */
 
 const side = 400;
-const num_slices = 3;
-const slice = side / num_slices;
-const circle_size = 100;
+const numSlices = 3;
+const slice = side / numSlices;
+const circleSize = 100;
 
+// eslint-disable-next-line no-unused-vars
 function setup() {
   createCanvas(side, side);
   colorMode(HSB);
@@ -13,14 +15,15 @@ function setup() {
   noLoop();
 }
 
+// eslint-disable-next-line no-unused-vars
 function draw() {
-  for (var i = 0; i < num_slices + 1; i++) {
-    for (var j = 0; j < num_slices + 1; j++) {
+  for (let i = 0; i < numSlices + 1; i++) {
+    for (let j = 0; j < numSlices + 1; j++) {
       fill(random(255), random(255), random(255));
       stroke(0);
-      circle(i * slice, j * slice, circle_size);
+      circle(i * slice, j * slice, circleSize);
     }
   }
-  const canvas_name = round(random(100000)).toString();
-  saveCanvas(canvas_name, "png");
+  const canvasName = round(random(100000)).toString();
+  saveCanvas(canvasName, 'png');
 }
