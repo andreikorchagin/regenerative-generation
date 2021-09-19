@@ -5,6 +5,9 @@ const p5 = require('node-p5');
 const request = require('request');
 const fs = require('fs');
 const {Storage} = require('@google-cloud/storage');
+const winston = require('winston');
+const {LoggingWinston} = require('@google-cloud/logging-winston');
+const loggingWinston = new LoggingWinston();
 
 // initialize all constants
 const side = 1440;
@@ -17,6 +20,20 @@ const canvasName = getRandomInt(randomLimit).toString();
 const storage = new Storage({keyFilename: 'key.json'});
 const gcsPrefix = 'https://storage.googleapis.com/';
 let filePath;
+
+// initialize Winston logger
+
+const logger = winston.createLogger({
+  level: 'info',
+  transports: [
+    new winston.transports.Console(),
+    loggingWinston,
+  ],
+});
+
+// Writes some log entries
+logger.error('warp nacelles offline');
+logger.info('shields at 99%');
 
 // helper function for random integer generation
 function getRandomInt(max) {
@@ -82,13 +99,14 @@ function createIGMedia(config, imageURL, caption) {
       {
         url: containerCreationURL,
         form: {
-          imageURL: imageURL,
+          image_url: imageURL,
           access_token: config.access_token,
           caption: caption,
         },
       },
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
+        console.log(bodyObj);
         const mediaContainerID = bodyObj.id;
         if (mediaContainerID != null) {
           publishMediaContainer(mediaContainerID, config);
@@ -110,10 +128,11 @@ function publishMediaContainer(mediaContainerID, config) {
         },
       },
       function(error, response, body) {
-        if (body.error !== 'undefined') {
+        const bodyObj = JSON.parse(body);
+        console.log(bodyObj);
+        if (bodyObj.error !== 'undefined') {
           console.log('Posting success!');
         }
-        const bodyObj = JSON.parse(body);
         const igMediaID = bodyObj.id;
         commentOnMedia(config, igMediaID);
       },
@@ -140,8 +159,9 @@ function commentOnMedia(config, igMediaID) {
           },
         },
         function(error, response, body) {
-          console.log(body);
-          if (body.error !== 'undefined') {
+          const bodyObj = JSON.parse(body);
+          console.log(bodyObj);
+          if (bodyObj.error !== 'undefined') {
             console.log('Comment success!');
           }
         },
