@@ -8,3 +8,4 @@ key.json
 node_modules/*
 sketch.js
 gen.html
+demo/*
