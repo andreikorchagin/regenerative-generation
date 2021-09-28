@@ -52,7 +52,7 @@ function sketch(p) {
         config = parseConfig();
         bucketName = config.bucket_name;
         caption = createCaption(canvasName, config);
-        uploadFile(bucketName, filePath, destFileName);
+        uploadFile(bucketName, filePath, destFileName).catch(console.error);
         const gcsImagePath = gcsPrefix + bucketName + '/' + destFileName;
         createIGMedia(config, gcsImagePath, caption);
       });
@@ -101,11 +101,11 @@ function createIGMedia(config, imageURL, caption) {
       },
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
-        logger.info(bodyObj);
+        const mediaContainerID = bodyObj.id;
+        logger.info('IG Media Container ID', mediaContainerID);
         if (bodyObj.error == 'undefined') {
           logger.error(bodyObj.error);
         }
-        const mediaContainerID = bodyObj.id;
         if (mediaContainerID != null) {
           publishMediaContainer(mediaContainerID, config);
         }
@@ -127,11 +127,11 @@ function publishMediaContainer(mediaContainerID, config) {
       },
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
-        logger.info(bodyObj);
+        const igMediaID = bodyObj.id;
+        logger.info('IG Media ID', igMediaID);
         if (bodyObj.error == 'undefined') {
           logger.error(bodyObj.error);
         }
-        const igMediaID = bodyObj.id;
         commentOnMedia(config, igMediaID);
       },
   );
@@ -158,7 +158,7 @@ function commentOnMedia(config, igMediaID) {
         },
         function(error, response, body) {
           const bodyObj = JSON.parse(body);
-          logger.info(bodyObj);
+          logger.info('IG Comment ID', bodyObj.id);
           if (bodyObj.error == 'undefined') {
             logger.error(bodyObj.error);
           }

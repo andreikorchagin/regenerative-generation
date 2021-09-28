@@ -19,7 +19,9 @@
   "dependencies": {
     "@google-cloud/logging-winston": "^4.1.1",
     "@google-cloud/storage": "^5.14.2",
+    "eslint": "^7.32.0",
     "node-p5": "^1.0.4",
+    "twitter-api-v2": "^1.5.2",
     "winston": "^3.3.3"
   }
 }
