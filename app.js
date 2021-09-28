@@ -31,10 +31,6 @@ const logger = winston.createLogger({
   ],
 });
 
-// Writes some log entries
-logger.error('warp nacelles offline');
-logger.info('shields at 99%');
-
 // helper function for random integer generation
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -50,14 +46,13 @@ function sketch(p) {
     p.noLoop();
     setTimeout(() => {
       p.saveCanvas(canvas, dir.concat(canvasName), 'jpg').then((filename) => {
-        console.log(`saved the canvas as ${filename}`);
         logger.info(`saved the canvas as ${filename}`);
         const destFileName = canvasName + '.jpg';
         filePath = filename;
         config = parseConfig();
         bucketName = config.bucket_name;
         caption = createCaption(canvasName, config);
-        uploadFile(bucketName, filePath, destFileName).catch(console.error);
+        uploadFile(bucketName, filePath, destFileName);
         const gcsImagePath = gcsPrefix + bucketName + '/' + destFileName;
         createIGMedia(config, gcsImagePath, caption);
       });
@@ -88,7 +83,6 @@ async function uploadFile(bucketName, filePath, destFileName) {
   await storage.bucket(bucketName).upload(filePath, {
     destination: destFileName,
   });
-  console.log(`${filePath} uploaded to ${bucketName}`);
   logger.info(`${filePath} uploaded to ${bucketName}`);
 }
 
@@ -107,7 +101,6 @@ function createIGMedia(config, imageURL, caption) {
       },
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
-        console.log(bodyObj);
         logger.info(bodyObj);
         if (bodyObj.error == 'undefined') {
           logger.error(bodyObj.error);
@@ -134,7 +127,6 @@ function publishMediaContainer(mediaContainerID, config) {
       },
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
-        console.log(bodyObj);
         logger.info(bodyObj);
         if (bodyObj.error == 'undefined') {
           logger.error(bodyObj.error);
@@ -166,7 +158,6 @@ function commentOnMedia(config, igMediaID) {
         },
         function(error, response, body) {
           const bodyObj = JSON.parse(body);
-          console.log(bodyObj);
           logger.info(bodyObj);
           if (bodyObj.error == 'undefined') {
             logger.error(bodyObj.error);
