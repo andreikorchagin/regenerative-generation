@@ -42,7 +42,7 @@ function sketch(p) {
     p.noLoop();
     setTimeout(() => {
       p.saveCanvas(canvas, dir.concat(canvasName), 'jpg').then((filePath) => {
-        logger.info(`saved the canvas as ${filePath}`);
+        logger.info({message: `saved the canvas as ${filePath}`});
         const destFileName = canvasName + '.jpg';
         config = parseConfig();
         createTweet(config, canvasName, filePath);
@@ -79,7 +79,7 @@ async function uploadFile(bucketName, filePath, destFileName) {
   await storage.bucket(bucketName).upload(filePath, {
     destination: destFileName,
   });
-  logger.info(`${filePath} uploaded to ${bucketName}`);
+  logger.info({message: `${filePath} uploaded to ${bucketName}`});
 }
 
 // create media container
@@ -98,12 +98,10 @@ function createIGMedia(config, imageURL, caption) {
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
         const mediaContainerID = bodyObj.id;
-        logger.info(
-            JSON.stringify({
-              message_type: 'IG Media Container ID',
-              id: mediaContainerID,
-            }),
-        );
+        logger.info({
+          message: 'IG Media Container ID',
+          id: mediaContainerID,
+        });
         if (bodyObj.error == 'undefined') {
           logger.error(bodyObj.error);
         }
@@ -129,9 +127,7 @@ function publishMediaContainer(mediaContainerID, config) {
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
         const igMediaID = bodyObj.id;
-        logger.info(
-            JSON.stringify({message_type: 'IG Media ID', id: igMediaID}),
-        );
+        logger.info({message: 'IG Media ID', id: igMediaID});
         if (bodyObj.error == 'undefined') {
           logger.error(bodyObj.error);
         }
@@ -161,9 +157,7 @@ function commentOnMedia(config, igMediaID) {
         },
         function(error, response, body) {
           const bodyObj = JSON.parse(body);
-          logger.info(
-              JSON.stringify({message_type: 'IG Comment ID', id: bodyObj.id}),
-          );
+          logger.info({message: 'IG Comment ID', id: bodyObj.id});
           if (bodyObj.error == 'undefined') {
             logger.error(bodyObj.error);
           }
@@ -184,11 +178,9 @@ async function createTweet(config, canvasName, filePath) {
     config.twitter_credentials.caption.start +
     canvasName +
     config.twitter_credentials.caption.end;
-  logger.info(
-      JSON.stringify({message_type: 'Twitter Media ID', id: mediaID}),
-  );
+  logger.info({message: 'Twitter Media ID', id: mediaID});
   tweetID = await twitterClient.v1.tweet(twitterCaption, {
     media_ids: mediaID,
   });
-  logger.info(JSON.stringify({message_type: 'Tweet ID', id: tweetID}));
+  logger.info({message: 'Tweet ID', id: tweetID});
 }
