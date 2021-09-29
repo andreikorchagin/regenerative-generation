@@ -7,6 +7,7 @@ const fs = require('fs');
 const {Storage} = require('@google-cloud/storage');
 const winston = require('winston');
 const {LoggingWinston} = require('@google-cloud/logging-winston');
+const {TwitterApi} = require('twitter-api-v2');
 const loggingWinston = new LoggingWinston();
 
 // initialize all constants
@@ -19,16 +20,11 @@ const dir = 'images/';
 const canvasName = getRandomInt(randomLimit).toString();
 const storage = new Storage({keyFilename: 'key.json'});
 const gcsPrefix = 'https://storage.googleapis.com/';
-let filePath;
 
 // initialize Winston logger
-
 const logger = winston.createLogger({
   level: 'info',
-  transports: [
-    new winston.transports.Console(),
-    loggingWinston,
-  ],
+  transports: [new winston.transports.Console(), loggingWinston],
 });
 
 // helper function for random integer generation
@@ -45,11 +41,11 @@ function sketch(p) {
     p.strokeWeight(0);
     p.noLoop();
     setTimeout(() => {
-      p.saveCanvas(canvas, dir.concat(canvasName), 'jpg').then((filename) => {
-        logger.info(`saved the canvas as ${filename}`);
+      p.saveCanvas(canvas, dir.concat(canvasName), 'jpg').then((filePath) => {
+        logger.info(`saved the canvas as ${filePath}`);
         const destFileName = canvasName + '.jpg';
-        filePath = filename;
         config = parseConfig();
+        createTweet(config, canvasName, filePath);
         bucketName = config.bucket_name;
         caption = createCaption(canvasName, config);
         uploadFile(bucketName, filePath, destFileName).catch(console.error);
@@ -102,7 +98,12 @@ function createIGMedia(config, imageURL, caption) {
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
         const mediaContainerID = bodyObj.id;
-        logger.info('IG Media Container ID', mediaContainerID);
+        logger.info(
+            JSON.stringify({
+              message_type: 'IG Media Container ID',
+              id: mediaContainerID,
+            }),
+        );
         if (bodyObj.error == 'undefined') {
           logger.error(bodyObj.error);
         }
@@ -128,7 +129,9 @@ function publishMediaContainer(mediaContainerID, config) {
       function(error, response, body) {
         const bodyObj = JSON.parse(body);
         const igMediaID = bodyObj.id;
-        logger.info('IG Media ID', igMediaID);
+        logger.info(
+            JSON.stringify({message_type: 'IG Media ID', id: igMediaID}),
+        );
         if (bodyObj.error == 'undefined') {
           logger.error(bodyObj.error);
         }
@@ -158,11 +161,34 @@ function commentOnMedia(config, igMediaID) {
         },
         function(error, response, body) {
           const bodyObj = JSON.parse(body);
-          logger.info('IG Comment ID', bodyObj.id);
+          logger.info(
+              JSON.stringify({message_type: 'IG Comment ID', id: bodyObj.id}),
+          );
           if (bodyObj.error == 'undefined') {
             logger.error(bodyObj.error);
           }
         },
     );
   }, 1000);
+}
+
+async function createTweet(config, canvasName, filePath) {
+  const twitterClient = new TwitterApi({
+    appKey: config.twitter_credentials.app_key,
+    appSecret: config.twitter_credentials.app_secret,
+    accessToken: config.twitter_credentials.access_token,
+    accessSecret: config.twitter_credentials.access_secret,
+  });
+  mediaID = await twitterClient.v1.uploadMedia(filePath);
+  twitterCaption =
+    config.twitter_credentials.caption.start +
+    canvasName +
+    config.twitter_credentials.caption.end;
+  logger.info(
+      JSON.stringify({message_type: 'Twitter Media ID', id: mediaID}),
+  );
+  tweetID = await twitterClient.v1.tweet(twitterCaption, {
+    media_ids: mediaID,
+  });
+  logger.info(JSON.stringify({message_type: 'Tweet ID', id: tweetID}));
 }
