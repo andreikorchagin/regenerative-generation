@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /** @format */
 /* eslint-disable require-jsdoc */
 
@@ -16,8 +17,11 @@ const numSlices = 3;
 const slice = side / numSlices;
 const circleSize = side / (numSlices + 1);
 const randomLimit = 100000;
+const subCircleMax = 15;
+const subCircleMin = 5;
+const subCircles = getRandomIntRange(subCircleMin, subCircleMax);
 const dir = 'images/';
-const canvasName = getRandomInt(randomLimit).toString();
+const canvasName = getRandomIntRange(0, randomLimit).toString();
 const storage = new Storage({keyFilename: 'key.json'});
 const gcsPrefix = 'https://storage.googleapis.com/';
 
@@ -28,8 +32,10 @@ const logger = winston.createLogger({
 });
 
 // helper function for random integer generation
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
+function getRandomIntRange(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min);
 }
 
 // create image
@@ -57,9 +63,11 @@ function sketch(p) {
   p.draw = () => {
     for (let i = 0; i < numSlices + 1; i++) {
       for (let j = 0; j < numSlices + 1; j++) {
-        p.fill(p.random(255), p.random(255), p.random(255));
-        p.stroke(0);
-        p.circle(i * slice, j * slice, circleSize);
+        for (let x = 0; x < subCircles; x++) {
+          p.fill(p.random(255), p.random(255), p.random(255));
+          p.stroke(0);
+          p.circle(i * slice, j * slice, circleSize - (x * circleSize / subCircles));
+        }
       }
     }
   };
