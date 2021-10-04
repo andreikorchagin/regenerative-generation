@@ -43,7 +43,7 @@ function sketch(p) {
   p.setup = () => {
     const canvas = p.createCanvas(side, side);
     p.colorMode(p.HSB);
-    p.background(p.random(255), p.random(255), p.random(255));
+    p.background(p.random(360), p.random(100), p.random(100));
     p.strokeWeight(0);
     p.noLoop();
     setTimeout(() => {
@@ -64,7 +64,7 @@ function sketch(p) {
     for (let i = 0; i < numSlices + 1; i++) {
       for (let j = 0; j < numSlices + 1; j++) {
         for (let x = 0; x < subCircles; x++) {
-          p.fill(p.random(255), p.random(255), p.random(255));
+          p.fill(p.random(360), p.random(100), p.random(100));
           p.stroke(0);
           p.circle(i * slice, j * slice, circleSize - (x * circleSize / subCircles));
         }
