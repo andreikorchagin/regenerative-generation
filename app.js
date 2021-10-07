@@ -1,4 +1,9 @@
-/* eslint-disable max-len */
+/**
+ * /* eslint-disable max-len
+ *
+ * @format
+ */
+
 /** @format */
 /* eslint-disable require-jsdoc */
 
@@ -42,10 +47,16 @@ function getRandomIntRange(min, max) {
 function sketch(p) {
   p.setup = () => {
     const canvas = p.createCanvas(side, side);
+    const leftHue = p.random(360);
+    const rightHue = (leftHue + 180) % 360;
+    p.background(rightHue, 75, 100);
     p.colorMode(p.HSB);
-    p.background(p.random(360), p.random(100), p.random(100));
-    p.strokeWeight(0);
+    p.strokeWeight(10);
+    p.strokeCap(p.SQUARE);
     p.noLoop();
+    p.angleMode(p.DEGREES);
+    p.fill(0, 0, 0, 0);
+    p.stroke(leftHue, 75, 100);
     setTimeout(() => {
       p.saveCanvas(canvas, dir.concat(canvasName), 'jpg').then((filePath) => {
         logger.info({message: `saved the canvas as ${filePath}`});
@@ -64,9 +75,23 @@ function sketch(p) {
     for (let i = 0; i < numSlices + 1; i++) {
       for (let j = 0; j < numSlices + 1; j++) {
         for (let x = 0; x < subCircles; x++) {
-          p.fill(p.random(360), p.random(100), p.random(100));
-          p.stroke(0);
-          p.circle(i * slice, j * slice, circleSize - (x * circleSize / subCircles));
+          if (Math.floor(p.random(3)) == 0) {
+            p.circle(
+                i * slice,
+                j * slice,
+                circleSize - (x * circleSize) / subCircles,
+            );
+            randomArcStart = getRandomIntRange(0, 180);
+            randomArcStop = getRandomIntRange(180, 360);
+            p.arc(
+                i * slice,
+                j * slice,
+                circleSize,
+                circleSize,
+                randomArcStart,
+                randomArcStop,
+            );
+          }
         }
       }
     }
