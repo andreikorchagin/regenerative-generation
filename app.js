@@ -22,9 +22,11 @@ const numSlices = 3;
 const slice = side / numSlices;
 const circleSize = side / (numSlices + 1);
 const randomLimit = 100000;
-const subCircleMax = 15;
+const subCircleMax = 12;
 const subCircleMin = 5;
 const subCircles = getRandomIntRange(subCircleMin, subCircleMax);
+const strokeWidth =
+  Math.floor(circleSize / subCircles / numSlices) + Math.floor(numSlices / 4);
 const dir = 'images/';
 const canvasName = getRandomIntRange(0, randomLimit).toString();
 const storage = new Storage({keyFilename: 'key.json'});
@@ -49,9 +51,9 @@ function sketch(p) {
     const canvas = p.createCanvas(side, side);
     const leftHue = p.random(360);
     const rightHue = (leftHue + 180) % 360;
-    p.background(rightHue, 75, 100);
     p.colorMode(p.HSB);
-    p.strokeWeight(10);
+    p.background(rightHue, 75, 100);
+    p.strokeWeight(strokeWidth);
     p.strokeCap(p.SQUARE);
     p.noLoop();
     p.angleMode(p.DEGREES);
@@ -76,20 +78,21 @@ function sketch(p) {
       for (let j = 0; j < numSlices + 1; j++) {
         for (let x = 0; x < subCircles; x++) {
           if (Math.floor(p.random(3)) == 0) {
-            p.circle(
-                i * slice,
-                j * slice,
-                circleSize - (x * circleSize) / subCircles,
-            );
-            randomArcStart = getRandomIntRange(0, 180);
+            randomArcStart = getRandomIntRange(0, 90);
             randomArcStop = getRandomIntRange(180, 360);
             p.arc(
                 i * slice,
                 j * slice,
-                circleSize,
-                circleSize,
+                circleSize - (x * circleSize) / subCircles,
+                circleSize - (x * circleSize) / subCircles,
                 randomArcStart,
                 randomArcStop,
+            );
+          } else if (Math.floor(p.random(3)) == 1) {
+            p.circle(
+                i * slice,
+                j * slice,
+                circleSize - (x * circleSize) / subCircles,
             );
           }
         }
