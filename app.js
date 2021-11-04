@@ -18,18 +18,17 @@ const loggingWinston = new LoggingWinston();
 
 // initialize all constants
 const side = 1440;
-const numSlices = 3;
+const numSlices = getRandomIntRange(3, 8);
 const slice = side / numSlices;
 const circleSize = side / (numSlices + 1);
 const randomLimit = 100000;
-const subCircleMax = 12;
-const subCircleMin = 5;
-const subCircles = getRandomIntRange(subCircleMin, subCircleMax);
-const strokeWidth =
-  Math.floor(circleSize / subCircles / numSlices) + Math.floor(numSlices / 4);
+const subCircles = 5;
+const strokeWidth = Math.floor(circleSize / subCircles / numSlices) + numSlices;
 const dir = 'images/';
 const canvasName = getRandomIntRange(0, randomLimit).toString();
 const storage = new Storage({keyFilename: 'key.json'});
+let leftHue;
+let rightHue;
 const gcsPrefix = 'https://storage.googleapis.com/';
 
 // initialize Winston logger
@@ -49,16 +48,15 @@ function getRandomIntRange(min, max) {
 function sketch(p) {
   p.setup = () => {
     const canvas = p.createCanvas(side, side);
-    const leftHue = p.random(360);
-    const rightHue = (leftHue + 180) % 360;
+    leftHue = p.random(360);
+    rightHue = (leftHue + 180) % 360;
     p.colorMode(p.HSB);
-    p.background(rightHue, 75, 100);
+    p.background(rightHue, getRandomIntRange(0, 75), 100);
     p.strokeWeight(strokeWidth);
     p.strokeCap(p.SQUARE);
     p.noLoop();
     p.angleMode(p.DEGREES);
     p.fill(0, 0, 0, 0);
-    p.stroke(leftHue, 75, 100);
     setTimeout(() => {
       p.saveCanvas(canvas, dir.concat(canvasName), 'jpg').then((filePath) => {
         logger.info({message: `saved the canvas as ${filePath}`});
@@ -77,9 +75,14 @@ function sketch(p) {
     for (let i = 0; i < numSlices + 1; i++) {
       for (let j = 0; j < numSlices + 1; j++) {
         for (let x = 0; x < subCircles; x++) {
+          p.stroke(
+              leftHue,
+              getRandomIntRange(50, 75),
+              getRandomIntRange(75, 100),
+          );
           if (Math.floor(p.random(3)) == 0) {
             randomArcStart = getRandomIntRange(0, 90);
-            randomArcStop = getRandomIntRange(180, 360);
+            randomArcStop = randomArcStart - getRandomIntRange(45, 180);
             p.arc(
                 i * slice,
                 j * slice,
